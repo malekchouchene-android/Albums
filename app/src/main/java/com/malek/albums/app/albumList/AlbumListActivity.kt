@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.malek.albums.R
 import com.malek.albums.app.BaseActivity
 import com.malek.albums.app.details.AlbumDetailActivity
-import com.malek.albums.app.injector
+import com.malek.albums.app.utils.injector
 import com.malek.albums.databinding.ActivityMainBinding
 import kotlinx.android.synthetic.main.activity_main.*
 import javax.inject.Inject

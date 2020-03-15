@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.databinding.*
 import androidx.lifecycle.*
 import com.malek.albums.R
-import com.malek.albums.app.AutoBindViewModel
+import com.malek.albums.app.utils.AutoBindViewModel
 import com.malek.albums.data.models.Album
 import com.malek.albums.data.AlbumsRepository
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -20,7 +20,7 @@ class AlbumsListViewModelFactory(private val albumsRepository: AlbumsRepository)
 class AlbumsListViewModel(private val albumsRepository: AlbumsRepository) : ViewModel(),
     LifecycleObserver {
 
-    val albumsList: ObservableArrayList<AlbumItemViewModel> = ObservableArrayList()
+    val albumsList: ObservableArrayList<AutoBindViewModel> = ObservableArrayList()
     val isLoading = ObservableBoolean(false)
     val lastScrollPosition = ObservableInt(0)
     private val compositeDisposable = CompositeDisposable()
@@ -34,11 +34,12 @@ class AlbumsListViewModel(private val albumsRepository: AlbumsRepository) : View
     private fun loadAlbumsList(isRefresh: Boolean = false) {
         compositeDisposable.addAll(albumsRepository.getAlbumsList()
             .map { list ->
-                list.map { album ->
-                    AlbumItemViewModel(album) {
-                        albumClicked.value = it
+                list.map {
+                    AlbumItemViewModel(it) { album ->
+                        albumClicked.value = album
                     }
                 }
+
             }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -48,15 +49,17 @@ class AlbumsListViewModel(private val albumsRepository: AlbumsRepository) : View
             .doFinally {
                 isLoading.set(false)
             }
-            .subscribe(
-                {
+            .subscribe({ list ->
+                list?.let {
                     albumsList.clear()
                     albumsList.addAll(it)
                     if (isRefresh) lastScrollPosition.set(0)
+                }
 
-                }, {
-                    Log.e("error", it.toString())
-                })
+
+            }, {
+                Log.e("error", it.toString())
+            })
         )
 
     }
@@ -76,9 +79,14 @@ class AlbumsListViewModel(private val albumsRepository: AlbumsRepository) : View
     }
 }
 
-data class AlbumItemViewModel(val album: Album, val onItemClickListener: ((Album) -> Unit)?) :
-    AutoBindViewModel() {
-    override fun getIdentifier() = album.id
+data class AlbumItemViewModel(val album: Album, val onItemClickListener: ((Album) -> Unit)?) : AutoBindViewModel() {
+    override fun areItemsTheSame(other: AutoBindViewModel): Boolean {
+        return if (other is AlbumItemViewModel) {
+            other.album.id == album.id
+        } else {
+            false
+        }
+    }
 
 
     override fun areContentsTheSame(other: AutoBindViewModel): Boolean {
@@ -97,3 +105,4 @@ data class AlbumItemViewModel(val album: Album, val onItemClickListener: ((Album
     override val layout: Int
         get() = R.layout.album_item_layout
 }
+
