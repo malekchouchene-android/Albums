@@ -2,7 +2,7 @@ package com.malek.albums.data
 
 import android.annotation.SuppressLint
 import android.util.Log
-import com.malek.albums.data.models.Album
+import com.malek.albums.data.entities.Album
 import com.malek.albums.utils.SchedulerProvider
 import io.reactivex.Completable
 import io.reactivex.Single

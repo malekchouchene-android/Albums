@@ -5,7 +5,7 @@ import androidx.databinding.*
 import androidx.lifecycle.*
 import com.malek.albums.R
 import com.malek.albums.app.utils.AutoBindViewModel
-import com.malek.albums.data.models.Album
+import com.malek.albums.data.entities.Album
 import com.malek.albums.data.AlbumsRepository
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -79,7 +79,8 @@ class AlbumsListViewModel(private val albumsRepository: AlbumsRepository) : View
     }
 }
 
-data class AlbumItemViewModel(val album: Album, val onItemClickListener: ((Album) -> Unit)?) : AutoBindViewModel() {
+data class AlbumItemViewModel(val album: Album, val onItemClickListener: ((Album) -> Unit)?) :
+    AutoBindViewModel() {
     override fun areItemsTheSame(other: AutoBindViewModel): Boolean {
         return if (other is AlbumItemViewModel) {
             other.album.id == album.id

@@ -1,6 +1,6 @@
 package com.malek.albums
 
-import com.malek.albums.data.models.Album
+import com.malek.albums.data.entities.Album
 object Data{
     val album1 = Album(
         albumGroup = 1,

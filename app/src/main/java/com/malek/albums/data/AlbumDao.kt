@@ -1,7 +1,7 @@
 package com.malek.albums.data
 
 import androidx.room.*
-import com.malek.albums.data.models.Album
+import com.malek.albums.data.entities.Album
 
 @Dao
 interface AlbumDao {

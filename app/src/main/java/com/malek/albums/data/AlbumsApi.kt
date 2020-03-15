@@ -1,6 +1,6 @@
 package com.malek.albums.data
 
-import com.malek.albums.data.models.Album
+import com.malek.albums.data.entities.Album
 import io.reactivex.Single
 import retrofit2.http.GET
 
