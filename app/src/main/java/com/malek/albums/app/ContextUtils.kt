@@ -11,8 +11,10 @@ import android.view.LayoutInflater
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.malek.albums.app.albumList.AlbumItemViewModel
 import com.squareup.picasso.Picasso
 
 
@@ -29,11 +31,13 @@ class AutoBindViewHolder(private val binding: ViewDataBinding) :
 
 abstract class AutoBindViewModel {
     abstract val layout: Int
+    abstract fun getIdentifier(): Int
+    abstract fun areContentsTheSame(other: AutoBindViewModel): Boolean
 }
 
 
 class
-AutoBindAdapter() : RecyclerView.Adapter<AutoBindViewHolder>() {
+AutoBindAdapter : RecyclerView.Adapter<AutoBindViewHolder>() {
     private val autoBindViewModels: MutableList<AutoBindViewModel> = mutableListOf()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AutoBindViewHolder {
         val itemBinding =
@@ -55,9 +59,17 @@ AutoBindAdapter() : RecyclerView.Adapter<AutoBindViewHolder>() {
     }
 
     fun replaceData(newItems: List<AutoBindViewModel>) {
+        val oldList = mutableListOf<AutoBindViewModel>()
+        oldList.addAll(autoBindViewModels)
         autoBindViewModels.clear()
         autoBindViewModels.addAll(newItems)
-        notifyDataSetChanged()
+        val diff = DiffUtil.calculateDiff(
+            AutoBindViewModelDiffCallBack(
+                oldList = oldList,
+                newList = autoBindViewModels
+            )
+        )
+        diff.dispatchUpdatesTo(this)
     }
 }
 
@@ -116,4 +128,24 @@ fun RecyclerView.setDefaultLayoutManager() {
         RecyclerView.VERTICAL,
         false
     )
+}
+
+class AutoBindViewModelDiffCallBack(
+    private val oldList: List<AutoBindViewModel>,
+    private val newList: List<AutoBindViewModel>
+) :
+    DiffUtil.Callback() {
+    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+        return oldList[oldItemPosition].getIdentifier() == newList[newItemPosition].getIdentifier()
+    }
+
+    override fun getOldListSize() = oldList.size
+    override fun getNewListSize() = newList.size
+
+    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) =
+        newList[newItemPosition].areContentsTheSame(oldList[oldItemPosition])
+
+    override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
+        return newList[newItemPosition]
+    }
 }

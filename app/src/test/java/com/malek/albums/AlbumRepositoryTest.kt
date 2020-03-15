@@ -20,9 +20,6 @@ class AlbumRepositoryTest {
     private lateinit var dao: AlbumDao
 
 
-    private val album =
-        Album(albumGroup = 1, id = 1, thumbnailUrl = "url", title = "title", imageUrl = "url")
-
     @Before
     fun setUp() {
         SchedulerProvider.init(true)
@@ -47,7 +44,7 @@ class AlbumRepositoryTest {
     fun should_insert_into_data_when_api_return_albums() {
         //given
         val repository = AlbumsRepositoryImp(albumsApi, dao)
-        BDDMockito.given(albumsApi.getAlbumsList()).willReturn(Single.just(listOf(album)))
+        BDDMockito.given(albumsApi.getAlbumsList()).willReturn(Single.just(listOf(Data.album1)))
 
         //when
         repository.getAlbumsList().test()

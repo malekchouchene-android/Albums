@@ -15,6 +15,7 @@
         app:cardBackgroundColor="@android:color/white"
         app:cardCornerRadius="4dp"
         app:cardElevation="2dp"
+        android:onClick="@{()->model.onItemClicked()}"
         app:cardUseCompatPadding="true">
 
         <androidx.constraintlayout.widget.ConstraintLayout

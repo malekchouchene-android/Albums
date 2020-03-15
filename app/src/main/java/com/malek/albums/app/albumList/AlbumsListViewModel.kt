@@ -1,13 +1,11 @@
 package com.malek.albums.app.albumList
 
 import android.util.Log
-import androidx.databinding.ObservableArrayList
-import androidx.databinding.ObservableBoolean
-import androidx.databinding.ObservableInt
-import androidx.lifecycle.ViewModel
+import androidx.databinding.*
+import androidx.lifecycle.*
 import com.malek.albums.R
 import com.malek.albums.app.AutoBindViewModel
-import com.malek.albums.data.Album
+import com.malek.albums.data.models.Album
 import com.malek.albums.data.AlbumsRepository
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -19,11 +17,14 @@ class AlbumsListViewModelFactory(private val albumsRepository: AlbumsRepository)
     }
 }
 
-class AlbumsListViewModel(private val albumsRepository: AlbumsRepository) : ViewModel() {
-    val albumsList = ObservableArrayList<AlbumItemViewModel>()
+class AlbumsListViewModel(private val albumsRepository: AlbumsRepository) : ViewModel(),
+    LifecycleObserver {
+
+    val albumsList: ObservableArrayList<AlbumItemViewModel> = ObservableArrayList()
     val isLoading = ObservableBoolean(false)
     val lastScrollPosition = ObservableInt(0)
     private val compositeDisposable = CompositeDisposable()
+    val albumClicked = MutableLiveData<Album?>()
 
     init {
         loadAlbumsList()
@@ -33,14 +34,15 @@ class AlbumsListViewModel(private val albumsRepository: AlbumsRepository) : View
     private fun loadAlbumsList(isRefresh: Boolean = false) {
         compositeDisposable.addAll(albumsRepository.getAlbumsList()
             .map { list ->
-                list.map {
-                    AlbumItemViewModel(it)
+                list.map { album ->
+                    AlbumItemViewModel(album) {
+                        albumClicked.value = it
+                    }
                 }
             }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .doOnSubscribe {
-                albumsList.clear()
                 isLoading.set(true)
             }
             .doFinally {
@@ -48,6 +50,7 @@ class AlbumsListViewModel(private val albumsRepository: AlbumsRepository) : View
             }
             .subscribe(
                 {
+                    albumsList.clear()
                     albumsList.addAll(it)
                     if (isRefresh) lastScrollPosition.set(0)
 
@@ -56,6 +59,11 @@ class AlbumsListViewModel(private val albumsRepository: AlbumsRepository) : View
                 })
         )
 
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+    fun resetLiveData() {
+        albumClicked.value = null
     }
 
     fun onSwipeToRefresh() {
@@ -68,8 +76,24 @@ class AlbumsListViewModel(private val albumsRepository: AlbumsRepository) : View
     }
 }
 
-data class AlbumItemViewModel(val album: Album) : AutoBindViewModel() {
+data class AlbumItemViewModel(val album: Album, val onItemClickListener: ((Album) -> Unit)?) :
+    AutoBindViewModel() {
+    override fun getIdentifier() = album.id
+
+
+    override fun areContentsTheSame(other: AutoBindViewModel): Boolean {
+        return if (other is AlbumItemViewModel) {
+            other.album.imageUrl == album.imageUrl && other.album.title == album.title && other.album.thumbnailUrl == album.thumbnailUrl
+        } else {
+            false
+        }
+    }
+
+    fun onItemClicked() {
+        onItemClickListener?.invoke(album)
+    }
+
+
     override val layout: Int
         get() = R.layout.album_item_layout
-
 }

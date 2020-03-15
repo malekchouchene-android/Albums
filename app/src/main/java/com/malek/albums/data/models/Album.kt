@@ -1,7 +1,6 @@
-package com.malek.albums.data
+package com.malek.albums.data.models
 
-import android.os.Parcelable
-import androidx.room.ColumnInfo
+ import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.android.parcel.Parcelize
@@ -9,10 +8,11 @@ import com.google.gson.annotations.SerializedName
 
 @Entity
 @Parcelize
-data class Album(
+ data class Album(
     @SerializedName("albumId") val albumGroup: Int?,
-    @SerializedName("id") @PrimaryKey val id: Int?,
+    @SerializedName("id") @PrimaryKey val id: Int,
     @SerializedName("title") val title: String?,
     @SerializedName("url") val imageUrl: String?,
     @SerializedName("thumbnailUrl") val thumbnailUrl: String?
 ) : Parcelable
+
