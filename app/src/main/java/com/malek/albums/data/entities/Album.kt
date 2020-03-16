@@ -10,14 +10,14 @@ import com.google.gson.annotations.SerializedName
 @Entity
 data class Album(
     @SerializedName("albumId") val albumGroup: Int?,
-    @SerializedName("id") @PrimaryKey val id: Int,
+    @SerializedName("id") @PrimaryKey val id: Long,
     @SerializedName("title") val title: String?,
     @SerializedName("url") val imageUrl: String?,
     @SerializedName("thumbnailUrl") val thumbnailUrl: String?
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readValue(Int::class.java.classLoader) as? Int,
-        parcel.readInt(),
+        parcel.readLong(),
         parcel.readString(),
         parcel.readString(),
         parcel.readString()
@@ -26,7 +26,7 @@ data class Album(
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeValue(albumGroup)
-        parcel.writeInt(id)
+        parcel.writeLong(id)
         parcel.writeString(title)
         parcel.writeString(imageUrl)
         parcel.writeString(thumbnailUrl)
@@ -45,5 +45,6 @@ data class Album(
             return arrayOfNulls(size)
         }
     }
+
 }
 

@@ -11,11 +11,11 @@ interface AlbumDao {
     @Query("SELECT COUNT(*) FROM Album")
     fun getAlbumsSize(): Int
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAlbums(albums: List<Album>)
 }
 
-@Database(entities = arrayOf(Album::class), version = 1)
+@Database(entities = [Album::class], version = 1)
 abstract class AlbumDatabase : RoomDatabase() {
     abstract fun albumDao(): AlbumDao
 }

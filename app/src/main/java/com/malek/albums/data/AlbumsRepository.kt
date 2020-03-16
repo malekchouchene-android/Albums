@@ -7,6 +7,7 @@ import com.malek.albums.utils.SchedulerProvider
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
+import timber.log.Timber
 
 interface AlbumsRepository {
 
@@ -23,7 +24,7 @@ class AlbumsRepositoryImp(private val api: AlbumsApi, private val albumDao: Albu
                 return@flatMap Single.just(it)
             }
             .onErrorResumeNext { t: Throwable ->
-                Log.e("error loading from api", t.toString())
+                Timber.e("api  error $t")
                 getAlbumsFromDataBase()
             }
 
@@ -34,12 +35,18 @@ class AlbumsRepositoryImp(private val api: AlbumsApi, private val albumDao: Albu
         Completable.fromCallable {
             albumDao.insertAlbums(albums)
         }
+            .toSingleDefault(true)
+            .flatMap {
+                Single.fromCallable {
+                    albumDao.getAlbumsSize()
+                }
+            }
             .subscribeOn(SchedulerProvider.getIo())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                Log.d("new Row", "ok")
+                Timber.i("total number of Rows $it")
             }, {
-                Log.e("new Row", it.toString())
+                Timber.e("insert error $it")
 
             })
     }

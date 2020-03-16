@@ -10,6 +10,7 @@ import com.malek.albums.data.AlbumsRepository
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 
 class AlbumsListViewModelFactory(private val albumsRepository: AlbumsRepository) {
     fun supply(): AlbumsListViewModel {
@@ -58,7 +59,7 @@ class AlbumsListViewModel(private val albumsRepository: AlbumsRepository) : View
 
 
             }, {
-                Log.e("error", it.toString())
+                Timber.e("get albums error : $it")
             })
         )
 

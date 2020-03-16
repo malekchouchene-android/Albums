@@ -80,6 +80,7 @@ dependencies {
 
 
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
+    implementation 'com.jakewharton.timber:timber:4.7.1'
 
 
 }
