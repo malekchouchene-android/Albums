@@ -2,6 +2,8 @@ package com.malek.albums
 
 
 import com.malek.albums.data.*
+import com.malek.albums.data.Networking.AlbumsApi
+import com.malek.albums.data.database.AlbumDao
 import com.malek.albums.utils.SchedulerProvider
 import io.reactivex.Single
 import org.junit.Before

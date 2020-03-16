@@ -1,4 +1,4 @@
-package com.malek.albums.data
+package com.malek.albums.data.database
 
 import androidx.room.*
 import com.malek.albums.data.entities.Album
@@ -15,7 +15,3 @@ interface AlbumDao {
     fun insertAlbums(albums: List<Album>)
 }
 
-@Database(entities = [Album::class], version = 1)
-abstract class AlbumDatabase : RoomDatabase() {
-    abstract fun albumDao(): AlbumDao
-}

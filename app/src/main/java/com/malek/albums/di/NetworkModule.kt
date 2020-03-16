@@ -1,9 +1,7 @@
 package com.malek.albums.di
 
 import com.google.gson.Gson
-import com.malek.albums.data.AlbumsApi
-import com.malek.albums.data.AlbumsRepository
-import com.malek.albums.data.AlbumsRepositoryImp
+import com.malek.albums.data.Networking.AlbumsApi
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient

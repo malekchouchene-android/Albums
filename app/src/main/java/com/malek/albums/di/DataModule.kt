@@ -3,6 +3,9 @@ package com.malek.albums.di
 import androidx.room.Room
 import com.malek.albums.AlbumsApplication
 import com.malek.albums.data.*
+import com.malek.albums.data.Networking.AlbumsApi
+import com.malek.albums.data.database.AlbumDao
+import com.malek.albums.data.database.AlbumDatabase
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton

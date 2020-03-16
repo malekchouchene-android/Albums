@@ -1,4 +1,4 @@
-package com.malek.albums.data
+package com.malek.albums.data.Networking
 
 import com.malek.albums.data.entities.Album
 import io.reactivex.Single
