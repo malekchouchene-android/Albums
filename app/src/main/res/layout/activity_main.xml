@@ -7,7 +7,7 @@
 
         <variable
             name="model"
-            type="com.malek.albums.app.albumList.AlbumsListViewModel" />
+            type="com.malek.quarn.app.albumList.AlbumsListViewModel" />
 
 
     </data>

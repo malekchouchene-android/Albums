@@ -5,7 +5,7 @@
 
         <variable
             name="album"
-            type="com.malek.albums.data.entities.Album" />
+            type="com.malek.quarn.data.entities.Album" />
 
     </data>
 
