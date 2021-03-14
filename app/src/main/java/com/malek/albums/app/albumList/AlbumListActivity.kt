@@ -6,12 +6,12 @@ import androidx.activity.viewModels
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.*
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.malek.albums.R
 import com.malek.albums.app.BaseActivity
 import com.malek.albums.app.details.AlbumDetailActivity
 import com.malek.albums.app.utils.injector
 import com.malek.albums.databinding.ActivityMainBinding
-import kotlinx.android.synthetic.main.activity_main.*
 import javax.inject.Inject
 
 class AlbumListActivity : BaseActivity() {
@@ -24,15 +24,17 @@ class AlbumListActivity : BaseActivity() {
         const val DEFAULT_SCROLL_VALUE = -1
     }
 
+
     @Inject
     lateinit var albumsListViewModelFactory: AlbumsListViewModelFactory
     private val viewModel: AlbumsListViewModel by viewModels {
-         object : ViewModelProvider.NewInstanceFactory() {
+        object : ViewModelProvider.NewInstanceFactory() {
             override fun <T : ViewModel?> create(modelClass: Class<T>): T {
                 return albumsListViewModelFactory.supply() as T
             }
         }
     }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,18 +42,18 @@ class AlbumListActivity : BaseActivity() {
             DataBindingUtil.setContentView(this, R.layout.activity_main)
         lifecycle.addObserver(viewModel)
         binding.model = viewModel
-        viewModel.albumClicked.observe(this) { album ->
-            album?.let {
+        viewModel.albumClicked.observe(this, Observer { album ->
+            album.let {
                 val intent = Intent(this, AlbumDetailActivity::class.java)
                 intent.putExtra(AlbumDetailActivity.ALBUM_EXTRA, it)
                 startActivity(intent)
             }
-        }
+        })
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        val layoutManager = list_albums?.layoutManager
+        val layoutManager = findViewById<RecyclerView>(R.id.list_albums)?.layoutManager
         val lastPosition = if (layoutManager is LinearLayoutManager) {
             layoutManager.findFirstVisibleItemPosition()
         } else {

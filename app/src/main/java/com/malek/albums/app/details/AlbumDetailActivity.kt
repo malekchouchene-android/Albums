@@ -4,8 +4,8 @@ import android.os.Bundle
 import androidx.databinding.DataBindingUtil
 import com.malek.albums.R
 import com.malek.albums.app.BaseActivity
-import com.malek.albums.data.entities.Album
 import com.malek.albums.databinding.ActivityAlbumDetailBinding
+import com.malek.albums.domain.Album
 
 class AlbumDetailActivity : BaseActivity() {
 

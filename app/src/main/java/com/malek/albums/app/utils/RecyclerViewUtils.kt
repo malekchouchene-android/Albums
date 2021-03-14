@@ -19,7 +19,7 @@ fun RecyclerView.setDefaultLayoutManager() {
     )
 }
 
-class AutoBindViewModelDiffCallBack(
+class AutoBindViewHolderDiffCallBack(
     private val oldList: List<AutoBindViewModel>,
     private val newList: List<AutoBindViewModel>
 ) :
@@ -34,13 +34,22 @@ class AutoBindViewModelDiffCallBack(
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) =
         newList[newItemPosition].areContentsTheSame(oldList[oldItemPosition])
 
-    override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
+    override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any {
         return newList[newItemPosition]
     }
 }
 
-class AutoBindAdapter : RecyclerView.Adapter<AutoBindViewHolder>() {
+class AutoBindAdapter : RecyclerView.Adapter<AutoBindAdapter.AutoBindViewHolder>() {
+
+    class AutoBindViewHolder(private val binding: ViewDataBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(autoBindViewModel: AutoBindViewModel) {
+            binding.setVariable(BR.model, autoBindViewModel)
+        }
+    }
+
     private val autoBindViewModels: MutableList<AutoBindViewModel> = mutableListOf()
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AutoBindViewHolder {
         val itemBinding =
             DataBindingUtil.inflate<ViewDataBinding>(
@@ -66,7 +75,7 @@ class AutoBindAdapter : RecyclerView.Adapter<AutoBindViewHolder>() {
         autoBindViewModels.clear()
         autoBindViewModels.addAll(newItems)
         val diff = DiffUtil.calculateDiff(
-            AutoBindViewModelDiffCallBack(
+            AutoBindViewHolderDiffCallBack(
                 oldList = oldList,
                 newList = autoBindViewModels
             )
@@ -97,7 +106,7 @@ fun bindList(
             } else {
                 recyclerView.setDefaultLayoutManager()
             }
-        } ?: kotlin.run {
+        } ?: run {
             recyclerView.setDefaultLayoutManager()
         }
     }
@@ -116,12 +125,6 @@ fun bindList(
 }
 
 
-class AutoBindViewHolder(private val binding: ViewDataBinding) :
-    RecyclerView.ViewHolder(binding.root) {
-    fun bind(autoBindViewModel: AutoBindViewModel) {
-        binding.setVariable(BR.model, autoBindViewModel)
-    }
-}
 
 abstract class AutoBindViewModel {
     abstract val layout: Int

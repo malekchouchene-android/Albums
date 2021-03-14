@@ -4,11 +4,11 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import kotlinx.android.parcel.Parcelize
 import com.google.gson.annotations.SerializedName
+import com.malek.albums.domain.Album
 
 @Entity
-data class Album(
+data class AlbumJson(
     @SerializedName("albumId") val albumGroup: Int?,
     @SerializedName("id") @PrimaryKey val id: Long,
     @SerializedName("title") val title: String?,
@@ -36,15 +36,16 @@ data class Album(
         return 0
     }
 
-    companion object CREATOR : Parcelable.Creator<Album> {
-        override fun createFromParcel(parcel: Parcel): Album {
-            return Album(parcel)
+    companion object CREATOR : Parcelable.Creator<AlbumJson> {
+        override fun createFromParcel(parcel: Parcel): AlbumJson {
+            return AlbumJson(parcel)
         }
 
-        override fun newArray(size: Int): Array<Album?> {
+        override fun newArray(size: Int): Array<AlbumJson?> {
             return arrayOfNulls(size)
         }
     }
+
 
 }
 

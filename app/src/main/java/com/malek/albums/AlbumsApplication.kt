@@ -16,6 +16,7 @@ class AlbumsApplication : Application() {
             .networkModule(NetworkModule())
             .appModule(AppModule())
             .dataModule(DataModule(this))
+            .domainModule(DomainModule())
             .build()
     }
 }

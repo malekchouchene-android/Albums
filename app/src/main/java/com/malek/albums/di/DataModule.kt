@@ -6,6 +6,7 @@ import com.malek.albums.data.*
 import com.malek.albums.data.Networking.AlbumsApi
 import com.malek.albums.data.database.AlbumDao
 import com.malek.albums.data.database.AlbumDatabase
+import com.malek.albums.domain.AlbumsRepository
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton

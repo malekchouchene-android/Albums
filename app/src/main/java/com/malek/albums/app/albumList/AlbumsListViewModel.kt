@@ -1,31 +1,39 @@
 package com.malek.albums.app.albumList
 
-import android.util.Log
+import android.widget.TextView
+import androidx.annotation.StringRes
 import androidx.databinding.*
 import androidx.lifecycle.*
 import com.malek.albums.R
 import com.malek.albums.app.utils.AutoBindViewModel
-import com.malek.albums.data.entities.Album
-import com.malek.albums.data.AlbumsRepository
+import com.malek.albums.domain.Album
+import com.malek.albums.domain.AlbumsRepository
+import com.malek.albums.domain.GetAlbumsUseCase
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import timber.log.Timber
+import java.net.ConnectException
+import java.net.SocketTimeoutException
 
-class AlbumsListViewModelFactory(private val albumsRepository: AlbumsRepository) {
+
+class AlbumsListViewModelFactory(private val getAlbumsUseCase: GetAlbumsUseCase) {
     fun supply(): AlbumsListViewModel {
-        return AlbumsListViewModel(albumsRepository)
+        return AlbumsListViewModel(getAlbumsUseCase)
     }
 }
 
-class AlbumsListViewModel(private val albumsRepository: AlbumsRepository) : ViewModel(),
+class AlbumsListViewModel(private val getAlbumsUseCase: GetAlbumsUseCase) : ViewModel(),
     LifecycleObserver {
 
     val albumsList: ObservableArrayList<AutoBindViewModel> = ObservableArrayList()
     val isLoading = ObservableBoolean(false)
     val lastScrollPosition = ObservableInt(0)
     private val compositeDisposable = CompositeDisposable()
-    val albumClicked = MutableLiveData<Album?>()
+    private val _albumClicked: MutableLiveData<Album> = MutableLiveData()
+    val albumClicked: LiveData<Album> = _albumClicked
+    val emptyStatVisibility = ObservableBoolean(false)
+    val emptyStatText: ObservableField<Int?> = ObservableField()
+
 
     init {
         loadAlbumsList()
@@ -33,13 +41,14 @@ class AlbumsListViewModel(private val albumsRepository: AlbumsRepository) : View
 
 
     private fun loadAlbumsList(isRefresh: Boolean = false) {
-        compositeDisposable.addAll(albumsRepository.getAlbumsList()
+        compositeDisposable.addAll(getAlbumsUseCase.execute()
             .map { list ->
                 list.map {
-                    AlbumItemViewModel(it) { album ->
-                        albumClicked.value = album
+                    AlbumItemViewHolder(it) { album ->
+                        _albumClicked.value = album
                     }
                 }
+
 
             }
             .subscribeOn(Schedulers.io())
@@ -51,15 +60,16 @@ class AlbumsListViewModel(private val albumsRepository: AlbumsRepository) : View
                 isLoading.set(false)
             }
             .subscribe({ list ->
-                list?.let {
-                    albumsList.clear()
-                    albumsList.addAll(it)
-                    if (isRefresh) lastScrollPosition.set(0)
-                }
+                emptyStatVisibility.set(false)
+                emptyStatText.set(null)
+                albumsList.clear()
+                albumsList.addAll(list)
+                if (isRefresh) lastScrollPosition.set(0)
 
 
             }, {
-                Timber.e("get albums error : $it")
+                emptyStatVisibility.set(true)
+                emptyStatText.set(formatErorr(it))
             })
         )
 
@@ -67,7 +77,7 @@ class AlbumsListViewModel(private val albumsRepository: AlbumsRepository) : View
 
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
     fun resetLiveData() {
-        albumClicked.value = null
+        _albumClicked.value = null
     }
 
     fun onSwipeToRefresh() {
@@ -78,33 +88,15 @@ class AlbumsListViewModel(private val albumsRepository: AlbumsRepository) : View
         super.onCleared()
         compositeDisposable.clear()
     }
-}
 
-data class AlbumItemViewModel(val album: Album, val onItemClickListener: ((Album) -> Unit)?) :
-    AutoBindViewModel() {
-    override fun areItemsTheSame(other: AutoBindViewModel): Boolean {
-        return if (other is AlbumItemViewModel) {
-            other.album.id == album.id
-        } else {
-            false
+    fun formatErorr(throwable: Throwable): Int {
+
+        return when (throwable) {
+            is ConnectException, is SocketTimeoutException -> R.string.no_network_error
+            else -> R.string.unexpected_error
         }
     }
-
-
-    override fun areContentsTheSame(other: AutoBindViewModel): Boolean {
-        return if (other is AlbumItemViewModel) {
-            other.album.imageUrl == album.imageUrl && other.album.title == album.title && other.album.thumbnailUrl == album.thumbnailUrl
-        } else {
-            false
-        }
-    }
-
-    fun onItemClicked() {
-        onItemClickListener?.invoke(album)
-    }
-
-
-    override val layout: Int
-        get() = R.layout.album_item_layout
 }
+
+
 
